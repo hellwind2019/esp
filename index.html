@@ -5,137 +5,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Temperature Graph</title>
-    <!-- Подключение библиотеки Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="style.css">
     <script src="script.js"></script>
 </head>
 
 <body>
-    <h1>Temperature change graph</h1>
-    <div class="container">
-        <canvas id="temperatureChart" width="600" height="400"></canvas>
+    <div class="flex-container header">
+        <h1>Temperature / Humidity</h1>
+        <button id="refresh">Refresh</button>
     </div>
-    <div class="container">
-        <canvas id="humidityChart" width="600" height="400"> </canvas>
+    <div class="flex-container">
+        <div class="container">
+            <canvas id="temperatureChart" width="600" height="400"></canvas>
+        </div>
+        <div class="container">
+            <canvas id="humidityChart" width="600" height="400"> </canvas>
+        </div>
     </div>
-    <button id="refresh">Refresh</button>
+    <h1>Filters:</h1>
+    <div class="flex-container">
+        <div class="filters-container">
+            <div class="date-container">
+                <label for="date-from">From: </label>
+                <input type="date" name="" id="date_from" class="picker">
+                <input type="time" name="" id="time_from" class="picker">
+            </div>
+            <div class="date-container">
+                <label for="date-to">To: </label>
+                <input type="date" name="" id="date_to" class="picker">
+                <input type="time" name="" id="time_to" class="picker">
+            </div>
 
-    <script>
-
-        const ctxTemp = document.getElementById('temperatureChart').getContext('2d');
-        const ctxHumi = document.getElementById('humidityChart').getContext('2d');
-        let temperatureChart;
-        let humidityChart;
-        // Функция для получения данных о температуре с сервера
-        let button = document.getElementById("refresh");
-        let endpoints = ["get-temperature-data", "get-humidity-data"]
-        createTemperatureChart()
-
-        button.addEventListener("click", () => {
-            update(temperatureChart, endpoints[0])
-            update(humidityChart, endpoints[1])
-        });
-
-
-        async function fetchData(endpoint) {
-            const response = await fetch(`http://192.168.247.29:6969/${endpoint}`);
-            const data = await response.json();
-
-            // Извлечение времени и значения температуры
-            const labels = data.map(entry => new Date(entry.record_time).toLocaleString());
-            const values = data.map(entry => entry.sensor_value);
-
-            return { labels, values };
-        }
-
-
-
-        // Функция для создания графика
-        async function createTemperatureChart() {
-            console.log("Fetching...")
-
-            temperatureChart = new Chart(ctxTemp, {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'Temperature (°C)',
-                        data: [],
-                        borderColor: 'rgb(255, 99, 132)',
-                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                        fill: true,
-                        tension: 0.1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        x: {
-                            title: {
-                                display: false,
-                                text: 'Time'
-                            },
-                            ticks:{
-                                display:false
-                            }
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'Temperature (°C)'
-                            }
-                        }
-                    }
-                }
-            });
-
-            humidityChart = new Chart(ctxHumi, {
-                type: 'line',
-                data: {
-                    labels: [],
-                    datasets: [{
-                        label: 'Humidity',
-                        data: [],
-                        borderColor: 'rgb(102, 153, 255)',
-                        backgroundColor: 'rgba(102, 153, 255, 0.3)',
-                        fill: true,
-                        tension: 0.1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    scales: {
-                        x: {
-                            title: {
-                                display: false,
-                                text: 'Time'
-                            },
-                            ticks:{
-                                display:false
-                            }
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'Humidity'
-                            }
-                        }
-                    }
-                }
-            });
-
-        }
-        async function update(chart, endpoint) {
-            const { labels, values } = await fetchData(endpoint);
-
-           
-            chart.data.labels = labels;
-            chart.data.datasets[0].data = values;
-            chart.update();
-        }
-
-    </script>
+        </div>
+    </div>
 </body>
 
 </html>
