@@ -18,8 +18,8 @@ app.use((req, res, next) => {
 var db = mysql.createConnection({
   host: "127.0.0.1",
   user: "root",
-  password: "root",
-  database: "test_db"
+  password: "admin",
+  database: "SensorTable"
 });
 app.use(express.json())
 
@@ -35,7 +35,7 @@ app.get('/data', (req, res) =>{
   if(!from || !to || !type) return res.status(400).json({error : 'Arguments not provided'}) 
     const query = `
       SELECT * 
-      FROM sensors
+      FROM DataTable
       WHERE record_time BETWEEN ? AND ?
       AND sensor_type = ?;`;
   db.query(query, [from, to, type], (err, results) => {
@@ -61,13 +61,13 @@ app.listen(port, () => {
 function connectDatabase(database) {
   database.connect(function (err) {
     if (err) throw err;
-    database.query("select * from sensors", function (err, result, fields) {
+    database.query("select * from DataTable", function (err, result, fields) {
       if (err) throw err;
     })
   })
 }
 function getTemperatureData(res, req) {
-  const query = 'SELECT record_time, sensor_value FROM sensors WHERE sensor_type = "Temperature" ORDER BY record_time ASC';
+  const query = 'SELECT record_time, sensor_value FROM DataTable WHERE sensor_type = "Temperature" ORDER BY record_time ASC';
   db.query(query, (error, results) => {
     if (error) {
       return res.status(500).json({ error: error.message });
@@ -77,7 +77,7 @@ function getTemperatureData(res, req) {
 
 }
 function getHumidityData(res, req) {
-  const query = 'SELECT record_time, sensor_value FROM sensors WHERE sensor_type = "Humidity" ORDER BY record_time ASC';
+  const query = 'SELECT record_time, sensor_value FROM DataTable WHERE sensor_type = "Humidity" ORDER BY record_time ASC';
   db.query(query, (error, results) => {
     if (error) {
       return res.status(500).json({ error: error.message });
@@ -96,13 +96,18 @@ function addSendorData(res, req) {
   }
 
   // SQL-запрос для вставки данных
-  const query = 'INSERT INTO sensors (sensor_type, sensor_value) VALUES (?, ?)';
-
+  const query = 'INSERT INTO DataTable (sensor_type, sensor_value) VALUES (?, ?)';
+  
   // Выполняем запрос
   db.query(query, [sensor_type, sensor_value], (error, results) => {
     if (error) {
+      console.log(error.message);
+      
       return res.status(500).json({ error: error.message });
+
     }
+    console.log(results.insertId);
+    
     res.status(201).json({ message: 'Sensor data added successfully', recordId: results.insertId });
   });
 }

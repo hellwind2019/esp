@@ -1,7 +1,7 @@
 
 document.addEventListener("DOMContentLoaded", ready);
-//let serverUrl = `http://192.168.0.103:6969`;
-let serverUrl = `http://127.0.0.1:6969`
+let serverUrl = `http://192.168.0.104:6969`;
+//let serverUrl = `http://127.0.0.1:6969`
 let ctxTemp;
 let ctxHumi;
 let temperatureChart;
@@ -11,7 +11,6 @@ let date_from;
 let time_from;
 let date_to;
 let time_to;
-let endpoints = ["get-temperature-data", "get-humidity-data"]
 
 function ready() {
     ctxTemp = document.getElementById('temperatureChart').getContext('2d');
@@ -25,14 +24,14 @@ function ready() {
     configureDateFilter();
     let button = document.getElementById("refresh");
 
-    createTemperatureChart()
+    createCharts()
 
-    update(temperatureChart, endpoints[0], "Temperature")
-    update(humidityChart, endpoints[1], "Humidity")
+    update(temperatureChart, "Temperature")
+    update(humidityChart, "Air")
 
     button.addEventListener("click", () => {
-        update(temperatureChart, endpoints[0], "Temperature")
-        update(humidityChart, endpoints[1], "Humidity")
+        update(temperatureChart, "Temperature")
+        update(humidityChart, "Air")
 
     })
 
@@ -46,7 +45,7 @@ async function update(chart, endpoint, sensor_type) {
 }
 
 
-async function fetchData(endpoint, sensor_type) {
+async function fetchData(sensor_type) {
     const df = date_from.value
     const tf = time_from.value
     const dt = date_to.value
@@ -61,7 +60,6 @@ async function fetchData(endpoint, sensor_type) {
     console.log(url)
 
 
-    // const response = await fetch(`${serverUrl}/${endpoint}`);
     const response = await fetch(url)
     const data = await response.json();
 
@@ -74,7 +72,7 @@ async function fetchData(endpoint, sensor_type) {
 
 
 
-async function createTemperatureChart() {
+async function createCharts() {
     console.log("Fetching...")
 
     temperatureChart = new Chart(ctxTemp, {
@@ -92,6 +90,9 @@ async function createTemperatureChart() {
         },
         options: {
             responsive: true,
+            animation:{
+                duration:200
+            },
             scales: {
                 x: {
                     title: {
@@ -106,7 +107,9 @@ async function createTemperatureChart() {
                     title: {
                         display: true,
                         text: 'Temperature (°C)'
-                    }
+                    },
+                    min:10,
+                    max:40
                 }
             }
         }
@@ -127,6 +130,9 @@ async function createTemperatureChart() {
         },
         options: {
             responsive: true,
+            animation:{
+                duration:50
+            },
             scales: {
                 x: {
                     title: {
@@ -141,7 +147,9 @@ async function createTemperatureChart() {
                     title: {
                         display: true,
                         text: 'Humidity'
-                    }
+                    },
+                    min:700,
+                    max: 2000
                 }
             }
         }
@@ -203,3 +211,8 @@ function saveValues() {
     localStorage.setItem("date_to", date_to.value);
     localStorage.setItem("time_to", time_to.value);
 }
+
+window.addEventListener('resize', () => {
+    temperatureChart.resize(); // Resize the temperature chart
+    humidityChart.resize();    // Resize the humidity chart
+});
