@@ -29,28 +29,66 @@ connectDatabase(db);
 
 
 
-app.get('/data', (req, res) =>{
-  const {from, to, type} = req.query;
-  console.log(req.query)   
-  if(!from || !to || !type) return res.status(400).json({error : 'Arguments not provided'}) 
-    const query = `
-      SELECT * 
-      FROM DataTable
-      WHERE record_time BETWEEN ? AND ?
-      AND sensor_type = ?;`;
-  db.query(query, [from, to, type], (err, results) => {
+app.get('/data', (req, res) => {
+  const { from, to, type, avg } = req.query;
+  let params = []
+  let query = ``
+  console.log(req.query)
+  if (avg) {
+    query = `
+      WITH numbered_data AS (
+        SELECT 
+            id,
+            record_time,
+            sensor_type,
+            sensor_value,
+            ROW_NUMBER() OVER (ORDER BY record_time) AS row_num
+        FROM DataTable
+        WHERE record_time BETWEEN ? AND ?
+        AND sensor_value > 0
+        AND sensor_type = ?
+      ),
+      grouped_data AS (
+          SELECT 
+              MIN(id) AS id,
+              MIN(record_time) AS record_time,
+              MIN(sensor_type) AS sensor_type,  -- Aggregating sensor_type
+              AVG(sensor_value) AS sensor_value
+          FROM numbered_data
+          GROUP BY CEIL(row_num / ?)
+      )
+      SELECT 
+          id,
+          record_time,
+          sensor_type,
+          sensor_value
+      FROM grouped_data
+      ORDER BY id;
+    `
+    params = [from, to, type, avg]
+  }else{
+    query = `
+    SELECT * 
+    FROM DataTable
+    WHERE record_time BETWEEN ? AND ?
+    AND sensor_type = ?
+    AND sensor_value > 0
+    ;`;
+    params = [from, to, type]
+  }
+  if (!from || !to || !type) return res.status(400).json({ error: 'Arguments not provided' })
+ 
+ 
+  db.query(query, params, (err, results) => {
     if (err) {
-        console.error('Ошибка выполнения запроса:', err);
-        return res.status(500).json({ error: 'Ошибка сервера' });
+      console.error('Ошибка выполнения запроса:', err);
+      return res.status(500).json({ error: 'Ошибка сервера' });
     }
 
     // Отправка данных в ответ
     res.json(results);
-});
+  });
 })
-app.get('/get-temperature-data', (req, res) => getTemperatureData(res, req, database));
-app.get('/get-humidity-data', (req, res) => getHumidityData(res, req));
-
 app.post('/add-sensor-data', (req, res) => addSendorData(res, req));
 
 app.listen(port, () => {
@@ -66,27 +104,6 @@ function connectDatabase(database) {
     })
   })
 }
-function getTemperatureData(res, req) {
-  const query = 'SELECT record_time, sensor_value FROM DataTable WHERE sensor_type = "Temperature" ORDER BY record_time ASC';
-  db.query(query, (error, results) => {
-    if (error) {
-      return res.status(500).json({ error: error.message });
-    }
-    res.json(results);
-  });
-
-}
-function getHumidityData(res, req) {
-  const query = 'SELECT record_time, sensor_value FROM DataTable WHERE sensor_type = "Humidity" ORDER BY record_time ASC';
-  db.query(query, (error, results) => {
-    if (error) {
-      return res.status(500).json({ error: error.message });
-    }
-    res.json(results);
-  });
-
-
-}
 function addSendorData(res, req) {
   const { sensor_type, sensor_value } = req.body; // Извлечение данных из тела запроса
 
@@ -97,17 +114,17 @@ function addSendorData(res, req) {
 
   // SQL-запрос для вставки данных
   const query = 'INSERT INTO DataTable (sensor_type, sensor_value) VALUES (?, ?)';
-  
+
   // Выполняем запрос
   db.query(query, [sensor_type, sensor_value], (error, results) => {
     if (error) {
       console.log(error.message);
-      
+
       return res.status(500).json({ error: error.message });
 
     }
     console.log(results.insertId);
-    
+
     res.status(201).json({ message: 'Sensor data added successfully', recordId: results.insertId });
   });
 }

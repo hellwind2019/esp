@@ -17,10 +17,10 @@
     </div>
     <div class="flex-container">
         <div class="container">
-            <canvas id="temperatureChart" class="chart" ></canvas>
+            <canvas id="temperatureChart" class="chart"></canvas>
         </div>
-        <div class="container" >
-            <canvas id="humidityChart" class="chart" > </canvas>
+        <div class="container">
+            <canvas id="humidityChart" class="chart"> </canvas>
         </div>
     </div>
     <h1>Filters:</h1>
@@ -36,7 +36,15 @@
                 <input type="date" name="" id="date_to" class="picker">
                 <input type="time" name="" id="time_to" class="picker">
             </div>
-
+            <h3>Charts:</h3>
+            <div class="charts-checkbox-container">
+                <label for="temp_box">Temperature</label>
+                <input type="checkbox" name="Charts" id="temp_box" class="chart-checkbox">
+                <label for="humi_box">Humidity</label>
+                <input type="checkbox" name="Charts" id="humi_box" class="chart-checkbox">
+                <label for="temp_box">Air quality</label>
+                <input type="checkbox" name="Charts" id="air_box" class="chart-checkbox">
+            </div>
         </div>
     </div>
 </body>

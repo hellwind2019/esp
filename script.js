@@ -56,7 +56,7 @@ async function fetchData(sensor_type) {
 
     const encodedFrom = encodeURIComponent(from);
     const encodedTo = encodeURIComponent(to);
-    const url = `${serverUrl}/data?from=${encodedFrom}&to=${encodedTo}&type=${sensor_type}`;
+    const url = `${serverUrl}/data?from=${encodedFrom}&to=${encodedTo}&type=${sensor_type}&avg=10`;
     console.log(url)
 
 
@@ -216,3 +216,12 @@ window.addEventListener('resize', () => {
     temperatureChart.resize(); // Resize the temperature chart
     humidityChart.resize();    // Resize the humidity chart
 });
+function calculateAverages(data, interval) {
+    let averages = [];
+    for (let i = 0; i < data.length; i += interval) {
+        const chunk = data.slice(i, i + interval);  // Slice the array into chunks of size `interval`
+        const avg = chunk.reduce((sum, value) => sum + value, 0) / chunk.length;  // Calculate average
+        averages.push(avg);
+    }
+    return averages;
+}
