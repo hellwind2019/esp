@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Temperature Graph</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+        integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="style.css">
     <script src="script.js"></script>
@@ -15,38 +17,47 @@
         <h1>Data from sensors</h1>
         <button id="refresh">Refresh</button>
     </div>
-    <div class="flex-container">
-        <div class="container">
-            <canvas id="temperatureChart" class="chart"></canvas>
-        </div>
-        <div class="container">
-            <canvas id="humidityChart" class="chart"> </canvas>
-        </div>
-    </div>
-    <h1>Filters:</h1>
+    <h2>Filters:</h2>
     <div class="flex-container">
         <div class="filters-container">
             <div class="date-container">
                 <label for="date-from">From: </label>
                 <input type="date" name="" id="date_from" class="picker">
                 <input type="time" name="" id="time_from" class="picker">
+                
             </div>
             <div class="date-container">
                 <label for="date-to">To: </label>
                 <input type="date" name="" id="date_to" class="picker">
                 <input type="time" name="" id="time_to" class="picker">
             </div>
+            <div class="params">
+                <label for="avgN">Average N: </label>
+                <input type="number" name="" id="avgN" class="">
+            </div>
             <h3>Charts:</h3>
             <div class="charts-checkbox-container">
                 <label for="temp_box">Temperature</label>
-                <input type="checkbox" name="Charts" id="temp_box" class="chart-checkbox">
+                <input type="checkbox" name="Charts" id="temp_box" class="chart-checkbox" value="Temperature">
                 <label for="humi_box">Humidity</label>
-                <input type="checkbox" name="Charts" id="humi_box" class="chart-checkbox">
+                <input type="checkbox" name="Charts" id="humi_box" class="chart-checkbox" value="Humidity">
                 <label for="temp_box">Air quality</label>
-                <input type="checkbox" name="Charts" id="air_box" class="chart-checkbox">
+                <input type="checkbox" name="Charts" id="air_box" class="chart-checkbox" value="Air">
             </div>
         </div>
     </div>
+    <div class="flex-container ">
+        <div class="container Temperature">
+            <canvas id="temperatureChart" class="chart"></canvas>
+        </div>
+        <div class="container Humidity">
+            <canvas id="humidityChart" class="chart"> </canvas>
+        </div>
+        <div class="container Air">
+            <canvas id="airChart" class="chart"> </canvas>
+        </div>
+    </div>
+
 </body>
 
 </html>

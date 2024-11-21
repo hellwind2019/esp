@@ -4,17 +4,19 @@ let serverUrl = `http://192.168.0.104:6969`;
 //let serverUrl = `http://127.0.0.1:6969`
 let ctxTemp;
 let ctxHumi;
+let ctxAir;
 let temperatureChart;
 let humidityChart;
 
 let date_from;
-let time_from;
+let time_from;  
 let date_to;
 let time_to;
 
 function ready() {
     ctxTemp = document.getElementById('temperatureChart').getContext('2d');
     ctxHumi = document.getElementById('humidityChart').getContext('2d');
+    ctxAir = document.getElementById('airChart').getContext('2d');
 
     date_from = document.getElementById("date_from");
     time_from = document.getElementById("time_from");
@@ -74,88 +76,55 @@ async function fetchData(sensor_type) {
 
 async function createCharts() {
     console.log("Fetching...")
-
-    temperatureChart = new Chart(ctxTemp, {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Temperature (°C)',
-                data: [],
-                borderColor: 'rgb(255, 99, 132)',
-                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                fill: true,
-                tension: 0.1
-            }]
-        },
-        options: {
-            responsive: true,
-            animation:{
-                duration:200
-            },
-            scales: {
-                x: {
-                    title: {
-                        display: false,
-                        text: 'Time'
-                    },
-                    ticks: {
-                        display: false
-                    }
-                },
-                y: {
-                    title: {
-                        display: true,
-                        text: 'Temperature (°C)'
-                    },
-                    min:10,
-                    max:40
-                }
-            }
-        }
-    });
-
-    humidityChart = new Chart(ctxHumi, {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Humidity',
-                data: [],
-                borderColor: 'rgb(102, 153, 255)',
-                backgroundColor: 'rgba(102, 153, 255, 0.3)',
-                fill: true,
-                tension: 0.1
-            }]
-        },
-        options: {
-            responsive: true,
-            animation:{
-                duration:50
-            },
-            scales: {
-                x: {
-                    title: {
-                        display: false,
-                        text: 'Time'
-                    },
-                    ticks: {
-                        display: false
-                    }
-                },
-                y: {
-                    title: {
-                        display: true,
-                        text: 'Humidity'
-                    },
-                    min:700,
-                    max: 2000
-                }
-            }
-        }
-    });
-
+    temperatureChart = CreateChart(ctxTemp, "Temperature");
+    humidityChart    = CreateChart(ctxHumi, "Humidity");
+    airChart         = CreateChart(ctxAir, "Air")
 }
+function CreateChart(ctx, label,) {
+    let chart = new Chart(ctx, {
+        type: 'line',
+        date: {
+            labels: [],
+            datasets: [
+                {
+                    label: label,
+                    data: [],
+                    borderColor: 'rgb(102, 153, 255)',
+                    backgroundColor: 'rgba(102, 153, 255, 0.3)',
+                    fill: true,
+                    tension: 0.1
+
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            animation: {
+                duration: 50
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: false,
+                        text: 'Time'
+                    },
+                    ticks: {
+                        display: false
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: label
+                    },
+                }
+            }
+        }
+
+    })
+    return chart;
+}
+
 function loadDefaultDate() {
     const now = new Date();
 
@@ -216,12 +185,11 @@ window.addEventListener('resize', () => {
     temperatureChart.resize(); // Resize the temperature chart
     humidityChart.resize();    // Resize the humidity chart
 });
-function calculateAverages(data, interval) {
-    let averages = [];
-    for (let i = 0; i < data.length; i += interval) {
-        const chunk = data.slice(i, i + interval);  // Slice the array into chunks of size `interval`
-        const avg = chunk.reduce((sum, value) => sum + value, 0) / chunk.length;  // Calculate average
-        averages.push(avg);
-    }
-    return averages;
-}
+
+$(document).ready(function(){
+    $('input[type = "checkbox"]').prop("checked", true);
+    $('input[type = "checkbox"]').click(function(){
+        var inputValue = $(this).attr('value');
+        $("." + inputValue).toggle();
+    })
+})
