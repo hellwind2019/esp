@@ -1,19 +1,22 @@
 
+
 document.addEventListener("DOMContentLoaded", ready);
-let serverUrl = `http://192.168.0.104:6969`;
+let serverUrl = `http://192.168.0.106:6969`;
 //let serverUrl = `http://127.0.0.1:6969`
 let ctxTemp;
 let ctxHumi;
 let ctxAir;
+
 let temperatureChart;
 let humidityChart;
+let airChart;
 
 let date_from;
-let time_from;  
+let time_from;
 let date_to;
 let time_to;
 
-function ready() {
+async function ready() {
     ctxTemp = document.getElementById('temperatureChart').getContext('2d');
     ctxHumi = document.getElementById('humidityChart').getContext('2d');
     ctxAir = document.getElementById('airChart').getContext('2d');
@@ -29,11 +32,14 @@ function ready() {
     createCharts()
 
     update(temperatureChart, "Temperature")
-    update(humidityChart, "Air")
+    update(humidityChart, "Humidity")
+    update(airChart, "Air")
+
 
     button.addEventListener("click", () => {
         update(temperatureChart, "Temperature")
-        update(humidityChart, "Air")
+        update(humidityChart, "Humidity")
+        update(airChart, "Air")
 
     })
 
@@ -74,20 +80,24 @@ async function fetchData(sensor_type) {
 
 
 
-async function createCharts() {
+function createCharts() {
     console.log("Fetching...")
     temperatureChart = CreateChart(ctxTemp, "Temperature");
-    humidityChart    = CreateChart(ctxHumi, "Humidity");
-    airChart         = CreateChart(ctxAir, "Air")
+    humidityChart = CreateChart(ctxHumi, "Humidity");
+    airChart = CreateChart(ctxAir, "Air")
+    console.log(typeof(airChart.data.datasets[0]));
+    
+    
+    
 }
-function CreateChart(ctx, label,) {
+function CreateChart(ctx, label1) {
     let chart = new Chart(ctx, {
         type: 'line',
-        date: {
+        data: {
             labels: [],
             datasets: [
                 {
-                    label: label,
+                    label: label1,
                     data: [],
                     borderColor: 'rgb(102, 153, 255)',
                     backgroundColor: 'rgba(102, 153, 255, 0.3)',
@@ -115,13 +125,17 @@ function CreateChart(ctx, label,) {
                 y: {
                     title: {
                         display: true,
-                        text: label
+                        text: label1
                     },
                 }
             }
         }
 
     })
+    console.log("Create chart");
+    
+    console.log(chart.data.datasets[0]);
+    
     return chart;
 }
 
@@ -186,9 +200,9 @@ window.addEventListener('resize', () => {
     humidityChart.resize();    // Resize the humidity chart
 });
 
-$(document).ready(function(){
+$(document).ready(function () {
     $('input[type = "checkbox"]').prop("checked", true);
-    $('input[type = "checkbox"]').click(function(){
+    $('input[type = "checkbox"]').click(function () {
         var inputValue = $(this).attr('value');
         $("." + inputValue).toggle();
     })
